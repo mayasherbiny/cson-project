@@ -267,50 +267,50 @@
         <img src="C:\Users\Heba\Desktop\Clarksons\deskapp2-master\cson\csonblue.png" width="300px" height="200px" top="50px"
                 left="90px" alt="">
 
-        <!-- Simple Datatable start -->
-        <div class="card-box mb-30">
-                <div class="pd-20">
-                        <h4 class="text-blue h4"></h4>
-                        <p class="mb-0"><a class="text-primary" href="https://datatables.net/" target="_blank"></a></p>
-                </div>
-                <div class="pb-20">
-                        <button id="addEntryBtn" class="btn btn-primary mb-3">Add Entry</button>
-                        <div class="data-table-controls">
-                                <!--<button id="clear-button" class="btn btn-danger">Clear Table</button>-->
-                                <span id="entries-info"></span>
-                        </div>
-
-                        <button id="exportButton" class="btn btn-primary mb-3">Export to Excel</button>
-                        <button id="importButton" class="btn btn-primary mb-3">Import from Excel</button>
-                        <input type="file" id="fileInput" accept=".xlsx, .xls" style="display:none;" />
-
-                        <table id="simpleDataTable" class="data-table table stripe hover nowrap">
-                                <thead>
-                                        <tr>
-                                                <th>
-                                                        Type
-                                                        <button class="btn btn-secondary btn-sm filter-btn" data-column="0">Filter</button>
-                                                        <div class="filter-dropdown filter-type-dropdown" id="filter-type-dropdown"></div>
-                                                </th>
-                                                <th>
-                                                        Model
-                                                        <button class="btn btn-secondary btn-sm filter-btn" data-column="1">Filter</button>
-                                                        <div class="filter-dropdown filter-model-dropdown" id="filter-model-dropdown"></div>
-                                                </th>
-                                                <th>Serial number</th>
-                                                <th>Asset ID</th>
-                                                <th>
-                                                        Status
-                                                        <button class="btn btn-secondary btn-sm filter-btn" data-column="4">Filter</button>
-                                                        <div class="filter-dropdown filter-status-dropdown" id="filter-status-dropdown"></div>
-                                                </th>
-                                                <th>Owner</th>
-                                                <th>Actions</th>
-                                        </tr>
-                                </thead>
-                        </table>
-                </div>
+   <!-- Simple Datatable start -->
+<div class="card-box mb-30">
+        <div class="pd-20">
+            <h4 class="text-blue h4"></h4>
+            <p class="mb-0"><a class="text-primary" href="https://datatables.net/" target="_blank"></a></p>
         </div>
+        <div class="pb-20">
+            <button id="addEntryBtn" class="btn btn-primary mb-3">Add Entry</button>
+            <div class="data-table-controls">
+                <!--<button id="clear-button" class="btn btn-danger">Clear Table</button>-->
+                <span id="entries-info"></span>
+            </div>
+    
+            <button id="exportButton" class="btn btn-primary mb-3">Export to Excel</button>
+            <button id="importButton" class="btn btn-primary mb-3">Import from Excel</button>
+            <input type="file" id="fileInput" accept=".xlsx, .xls" style="display:none;" />
+    
+            <table id="simpleDataTable" class="data-table table stripe hover nowrap">
+                <thead>
+                    <tr>
+                        <th>
+                            Type
+                            <button class="btn btn-secondary btn-sm filter-btn" data-column="0">Filter</button>
+                            <div class="filter-dropdown filter-type-dropdown" id="filter-type-dropdown"></div>
+                        </th>
+                        <th>
+                            Model
+                            <button class="btn btn-secondary btn-sm filter-btn" data-column="1">Filter</button>
+                            <div class="filter-dropdown filter-model-dropdown" id="filter-model-dropdown"></div>
+                        </th>
+                        <th>Serial number</th>
+                        <th>Asset ID</th>
+                        <th>
+                            Status
+                            <button class="btn btn-secondary btn-sm filter-btn" data-column="4">Filter</button>
+                            <div class="filter-dropdown filter-status-dropdown" id="filter-status-dropdown"></div>
+                        </th>
+                        <th>Owner</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
 
         <style>
                 .filter-dropdown {
@@ -406,154 +406,250 @@
         <script src="vendors/scripts/dashboard.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
 
-        <script>
-                $(document).ready(function () {
-                        var table = $('#simpleDataTable').DataTable({
-                                responsive: true,
-                                "columns": [
-                                        null, // Type
-                                        null, // Model
-                                        { "type": "num" }, // Serial number
-                                        { "type": "num" }, // Asset ID
-                                        null, // Status
-                                        null, // Owner
-                                        { "orderable": false } // Actions
-                                ],
-                        });
+       
+<script>
+    $(document).ready(function () {
+        var table = $('#simpleDataTable').DataTable({
+            responsive: true,
+            "columns": [
+                null, // Type
+                null, // Model
+                { "type": "num" }, // Serial number
+                { "type": "num" }, // Asset ID
+                null, // Status
+                null, // Owner
+                { "orderable": false } // Actions
+            ],
+            "infoCallback": function(settings, start, end, max, total, pre) {
+                if (total === 0) {
+                    return "Showing 0 entries";
+                } else if (total === 1) {
+                    return "Showing 1 of 1 entries";
+                } else {
+                    return "Showing " + start + " of " + total + " entries";
+                }
+            }
+        });
 
-                        // Toggle the dropdown when filter button is clicked
-                        $('.filter-btn').on('click', function () {
-                                var dropdown = $(this).next('.filter-dropdown');
-                                $('.filter-dropdown').not(dropdown).hide(); // Hide other dropdowns
-                                dropdown.toggle(); // Show/hide the current dropdown
-                        });
+        // Initialize editingRow as null
+        var editingRow = null;
 
-                        // Hide dropdown when clicking outside
-                        $(document).on('click', function (event) {
-                                if (!$(event.target).closest('.filter-btn, .filter-dropdown').length) {
-                                        $('.filter-dropdown').hide(); // Hide all dropdowns
-                                }
-                        });
+        // Toggle the dropdown when filter button is clicked
+        $('.filter-btn').on('click', function () {
+            var dropdown = $(this).next('.filter-dropdown');
+            $('.filter-dropdown').not(dropdown).hide(); // Hide other dropdowns
+            dropdown.toggle(); // Show/hide the current dropdown
+        });
 
-                        // Generate filters dynamically based on column data
-                        function populateFilters() {
-                                $('#simpleDataTable thead th').each(function (index) {
-                                        var column = table.column(index);
-                                        var uniqueValues = [];
+        // Hide dropdown when clicking outside
+        $(document).on('click', function (event) {
+            if (!$(event.target).closest('.filter-btn, .filter-dropdown').length) {
+                $('.filter-dropdown').hide(); // Hide all dropdowns
+            }
+        });
 
-                                        column.data().unique().sort().each(function (d, j) {
-                                                if (d && uniqueValues.indexOf(d) === -1) {
-                                                        uniqueValues.push(d);
-                                                }
-                                        });
+        // Generate filters dynamically based on column data
+        function populateFilters() {
+            $('#simpleDataTable thead th').each(function (index) {
+                var column = table.column(index);
+                var uniqueValues = [];
 
-                                        var filterDropdown = $(this).find('.filter-dropdown');
-                                        filterDropdown.empty();
-
-                                        // Add "All" option to clear filters
-                                        filterDropdown.append('<button class="dropdown-item" data-value="">All</button>');
-
-                                        uniqueValues.forEach(function (value) {
-                                                filterDropdown.append('<button class="dropdown-item" data-value="' + value + '">' + value + '</button>');
-                                        });
-                                });
-                        }
-
-                        // Apply the filter when a filter option is clicked
-                        $(document).on('click', '.filter-dropdown button', function () {
-                                var value = $(this).data('value'); // Get the value from the clicked button
-                                var columnIndex = $(this).closest('th').index();
-                                table.column(columnIndex).search(value).draw(); // Apply the filter to the DataTable
-
-                                // Hide the dropdown after selection
-                                $(this).closest('.filter-dropdown').hide();
-                        });
-
-                        // Import from Excel
-                        $('#importButton').on('click', function () {
-                                $('#fileInput').click(); // Trigger file input click
-                        });
-
-                        $('#fileInput').on('change', function (event) {
-                                const file = event.target.files[0]; // Get the selected file
-
-                                if (!file) {
-                                        alert("Please select a file.");
-                                        return;
-                                }
-
-                                const reader = new FileReader();
-                                reader.onload = function (event) {
-                                        const data = new Uint8Array(event.target.result);
-                                        const workbook = XLSX.read(data, { type: 'array' });
-
-                                        const sheetName = workbook.SheetNames[0]; // Get the first sheet
-                                        const worksheet = workbook.Sheets[sheetName];
-                                        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
-                                        // Clear existing table data
-                                        table.clear();
-
-                                        // Populate table with JSON data
-                                        jsonData.forEach((row, rowIndex) => {
-                                                // Skip the header row
-                                                if (rowIndex === 0) return;
-
-                                                // Add a new row for each entry in the Excel sheet
-                                                table.row.add([
-                                                        row[0] || '', // Type
-                                                        row[1] || '', // Model
-                                                        row[2] || '', // Serial number
-                                                        row[3] || '', // Asset ID
-                                                        row[4] || '', // Status
-                                                        row[5] || '', // Owner
-                                                        '<div class="dropdown">' +
-                                                        '<a class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle" href="#" role="button" data-toggle="dropdown">' +
-                                                        '<i class="dw dw-more"></i></a>' +
-                                                        '<div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">' +
-                                                        '<a class="dropdown-item edit-row" href="#"><i class="dw dw-edit2"></i> Edit</a>' +
-                                                        '<a class="dropdown-item delete-row" href="#"><i class="dw dw-delete-3"></i> Delete</a>' +
-                                                        '</div></div>'
-                                                ]).draw();
-                                        });
-
-                                        // After importing data, regenerate the filters based on new data
-                                        populateFilters();
-                                };
-                                reader.readAsArrayBuffer(file);
-                        });
-
-                        function updateButtonStates() {
-                                var rowCount = table.rows().count();
-                                $('#exportButton').prop('disabled', rowCount === 0);
-                        }
-
-                        // Export to Excel
-                        $('#exportButton').on('click', function () {
-                                if (table.rows().count() === 0) {
-                                        alert("No entries to export.");
-                                        return;
-                                }
-
-                                var ws = XLSX.utils.table_to_sheet($('#simpleDataTable')[0]);
-                                var wb = XLSX.utils.book_new();
-                                XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
-
-                                // Generate Excel file
-                                XLSX.writeFile(wb, 'data.xlsx');
-                        });
-
-                        // Initial population of filters (in case there's pre-loaded data)
-                        populateFilters();
+                column.data().unique().sort().each(function (d, j) {
+                    if (d && uniqueValues.indexOf(d) === -1) {
+                        uniqueValues.push(d);
+                    }
                 });
-        </script>
 
-        <!-- DataTables CSS -->
-        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.min.css">
-        <!-- DataTables JS -->
-        <script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
-        <!-- XLSX JS -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
-</body>
+                var filterDropdown = $(this).find('.filter-dropdown');
+                filterDropdown.empty();
 
-</html>
+                // Add "All" option to clear filters
+                filterDropdown.append('<button class="dropdown-item" data-value="">All</button>');
+
+                uniqueValues.forEach(function (value) {
+                    filterDropdown.append('<button class="dropdown-item" data-value="' + value + '">' + value + '</button>');
+                });
+            });
+        }
+
+        // Apply the filter when a filter option is clicked
+        $(document).on('click', '.filter-dropdown button', function () {
+            var value = $(this).data('value'); // Get the value from the clicked button
+            var columnIndex = $(this).closest('th').index();
+            table.column(columnIndex).search(value).draw(); // Apply the filter to the DataTable
+
+            // Hide the dropdown after selection
+            $(this).closest('.filter-dropdown').hide();
+        });
+
+        // Import from Excel
+        $('#importButton').on('click', function () {
+            $('#fileInput').click(); // Trigger file input click
+        });
+
+        $('#fileInput').on('change', function (event) {
+            const file = event.target.files[0]; // Get the selected file
+
+            if (!file) {
+                alert("Please select a file.");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                const data = new Uint8Array(event.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+
+                const sheetName = workbook.SheetNames[0]; // Get the first sheet
+                const worksheet = workbook.Sheets[sheetName];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+                // Clear existing table data
+                table.clear();
+
+                // Populate table with JSON data
+                jsonData.forEach((row, rowIndex) => {
+                    // Skip the header row
+                    if (rowIndex === 0) return;
+
+                    // Add a new row for each entry in the Excel sheet
+                    table.row.add([
+                        row[0] || '', // Type
+                        row[1] || '', // Model
+                        row[2] || '', // Serial number
+                        row[3] || '', // Asset ID
+                        row[4] || '', // Status
+                        row[5] || '', // Owner
+                        '<div class="dropdown">' +
+                        '<a class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle" href="#" role="button" data-toggle="dropdown">' +
+                        '<i class="dw dw-more"></i></a>' +
+                        '<div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">' +
+                        '<a class="dropdown-item edit-row" href="#"><i class="dw dw-edit2"></i> Edit</a>' +
+                        '<a class="dropdown-item delete-row" href="#"><i class="dw dw-delete-3"></i> Delete</a>' +
+                        '</div></div>'
+                    ]).draw();
+                });
+
+                // After importing data, regenerate the filters based on new data
+                populateFilters();
+                updateButtonStates(); // Update button states after importing data
+            };
+            reader.readAsArrayBuffer(file);
+        });
+
+        // Update button states based on table row count
+        function updateButtonStates() {
+            var rowCount = table.rows().count();
+            $('#addEntryBtn').prop('disabled', rowCount === 0);
+            $('#exportButton').prop('disabled', rowCount === 0);
+        }
+
+        // Add Entry
+        $('#addEntryBtn').on('click', function() {
+            if (editingRow !== null) return; // Prevent creating a new entry if one is being edited
+
+            var newRow = table.row.add([
+                '<input type="text" class="form-control" placeholder="Type">',
+                '<input type="text" class="form-control" placeholder="Model">',
+                '<input type="text" class="form-control" placeholder="Serial number">',
+                '<input type="text" class="form-control" placeholder="Asset ID">',
+                '<input type="text" class="form-control" placeholder="Status">',
+                '<input type="text" class="form-control" placeholder="Owner">',
+                '<button class="btn btn-success confirm-row">Confirm</button>' +
+                '<button class="btn btn-danger cancel-row">Cancel</button>'
+            ]).draw().node();
+
+            $(newRow).find('td').eq(0).find('input').focus(); // Focus on the first input of the new row
+            editingRow = newRow;
+
+            // Disable the Add Entry button
+            $('#addEntryBtn').prop('disabled', true);
+        });
+            
+                    // Edit Row
+                    $('#simpleDataTable tbody').on('click', '.edit-row', function() {
+                        if (editingRow !== null) return; // Prevent editing another row if one is being edited
+            
+                        var row = table.row($(this).closest('tr'));
+                        var rowData = row.data();
+                        editingRow = row.node();
+            
+                        for (var i = 0; i < rowData.length - 1; i++) {
+                            rowData[i] = '<input type="text" class="form-control" value="' + $(row.node()).find('td').eq(i).text() + '">';
+                        }
+            
+                        rowData[rowData.length - 1] = '<button class="btn btn-success confirm-row">Confirm</button>' +
+                                                      '<button class="btn btn-danger cancel-row">Cancel</button>';
+            
+                        row.data(rowData).draw();
+                        $(editingRow).find('td').eq(0).find('input').focus(); // Focus on the first input of the edited row
+            
+                        // Disable the Add Entry button
+                        $('#addEntryBtn').prop('disabled', true);
+                    });
+            
+                    // Confirm Row Edit
+                    $('#simpleDataTable tbody').on('click', '.confirm-row', function() {
+                        var row = table.row(editingRow);
+            
+                        var newData = [];
+                        $(editingRow).find('input').each(function() {
+                            newData.push($(this).val());
+                        });
+            
+                        newData.push('<div class="dropdown">' +
+                                     '<a class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle" href="#" role="button" data-toggle="dropdown">' +
+                                     '<i class="dw dw-more"></i></a>' +
+                                     '<div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">' +
+                                     '<a class="dropdown-item edit-row" href="#"><i class="dw dw-edit2"></i> Edit</a>' +
+                                     '<a class="dropdown-item delete-row" href="#"><i class="dw dw-delete-3"></i> Delete</a>' +
+                                     '</div></div>');
+            
+                        row.data(newData).draw();
+                        editingRow = null;
+                        $('#addEntryBtn').prop('disabled', false);
+                        updateButtonStates(); // Update button states after confirming edit
+                    });
+            
+                    // Cancel Row Edit
+                    $('#simpleDataTable tbody').on('click', '.cancel-row', function() {
+                        var row = table.row(editingRow);
+                        row.data(row.data()).draw(); // Revert to original data
+                        editingRow = null;
+                        $('#addEntryBtn').prop('disabled', false);
+                        updateButtonStates(); // Update button states after canceling edit
+                    });
+            
+                    // Delete Row
+                    $('#simpleDataTable tbody').on('click', '.delete-row', function() {
+                        if (confirm("Are you sure you want to delete this row?")) {
+                            var row = table.row($(this).closest('tr'));
+                            row.remove().draw();
+                            updateButtonStates(); // Update button states after deleting a row
+                        }
+                    });
+                    // Export Functionality
+    $('#exportButton').on('click', function() {
+        if (table.rows().count() === 0) {
+            alert("No entries to export.");
+            return;
+        }
+
+        var ws = XLSX.utils.table_to_sheet($('#simpleDataTable')[0]);
+        var wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+
+        // Generate Excel file
+        XLSX.writeFile(wb, 'data.xlsx');
+    });
+
+
+                });
+            </script>
+
+<!-- DataTables CSS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.min.css">
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
+<!-- XLSX JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
